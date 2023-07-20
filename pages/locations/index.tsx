@@ -1,34 +1,42 @@
 import {PageWrapper} from 'components/PageWrapper/PageWrapper';
-import {API} from 'assets/api/api';
-import {CharacterType, EpisodeType, ResponseType} from 'assets/api/rick-and-morty-api';
-import {Header} from 'components/Header/Header';
-import {notFound} from 'next/navigation';
+import {dehydrate, QueryClient, useQuery} from '@tanstack/react-query';
+import {LocationType, ResponseType} from 'assets/api/rick-and-morty-api';
+import {Card} from 'components/Card/Card';
+import {getLayout} from 'components/Layout/BaseLayout/BaseLayout';
 
-
-type PropsType = {
-  episodes: ResponseType<EpisodeType>
+const getLocations = () => {
+  return fetch('https://rickandmortyapi.com/api/location', {
+    method: 'GET'
+  }).then(res => res.json())
 }
-export const getServerSideProps = async () => {
-  const episodes = await API.rickAndMorty.getEpisodes()
 
-  if (!episodes) {
-    return {
-      notFound: true
+export const getStaticProps = async () => {
+  const queryClient = new QueryClient()
+
+  await queryClient.fetchQuery(['locations'], getLocations)
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient)
     }
   }
-
-  return {props: {episodes}}
 }
 
+const Locations = () => {
+  const {data: locations} = useQuery<ResponseType<LocationType>>(['locations'], getLocations)
 
-const Episodes = ({episodes}: PropsType) => {
+  if (!locations) return null
 
-  const episodesList=episodes.results.map(e=> <div key={e.id}>{e.name}</div>)
+  const locationsList = locations.results.map(location => (
+    <Card key={location.id} name={location.name}/>
+  ))
 
-  return <PageWrapper>
-    <Header/>
-    {episodesList}
-  </PageWrapper>
+  return (
+    <PageWrapper>
+      {locationsList}
+    </PageWrapper>
+  )
 }
 
-export default Episodes
+Locations.getLayout = getLayout
+export default Locations

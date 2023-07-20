@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "baseUrl": ".",
+    "baseUrl": ".", // . импорты от корневой папки
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -16,7 +16,7 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@/types/*": ["./assets/types/*"]
+      "@/types/*": ["./assets/types/*"] //кастомный путь , можно юзать подход если путь длинный
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
